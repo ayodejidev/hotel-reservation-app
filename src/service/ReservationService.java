@@ -82,4 +82,11 @@ public class ReservationService {
             }
         }
     }
+
+    // Method to get all rooms
+    // In ReservationService class
+    public Collection<IRoom> getAllRooms() {
+        return roomMap.values();
+    }
+
 }
