@@ -39,7 +39,7 @@ public class MainMenu {
                     AdminMenu.runAdminMenu(); // Call the Admin Menu when it's ready
                     break;
                 case "5":
-                    System.out.println("Exiting application. Goodbye!");
+                    System.out.println("Exiting the Main Menu..");
                     keepRunning = false;
                     break;
                 default:
