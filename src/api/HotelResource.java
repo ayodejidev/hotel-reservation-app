@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Date;
 
 public class HotelResource {
-    // Static reference for Singleton pattern
+
     private static HotelResource hotelResource = null;
 
     // Get instances of CustomerService and ReservationService

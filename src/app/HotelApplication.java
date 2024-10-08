@@ -5,7 +5,7 @@ import menu.MainMenu;
 
 import java.util.Scanner;
 
-public class HotelReservationApp {
+public class HotelApplication {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -21,30 +21,23 @@ public class HotelReservationApp {
             String choice = scanner.nextLine();
 
             switch (choice) {
-                case "1":
-                    // Admin option selected
-                    AdminMenu.runAdminMenu();
-                    break;
-                case "2":
-                    // Customer option selected
-                    MainMenu.runMainMenu();
-                    break;
-                case "3":
-                    // Exit option selected
-                    System.out.println("Exiting application. Goodbye!");
+                case "1" -> AdminMenu.runAdminMenu();  // Admin option selected
+                case "2" -> MainMenu.runMainMenu();  // Customer option selected
+                case "3" -> {
                     keepRunning = false;
-                    break;
-                default:
-                    System.out.println("Invalid input. Please choose a number between 1 and 3.");
+                    System.out.println("Exiting application. See you next time!");
+                    System.exit(0);
+                }
+                default -> System.out.println("Invalid input. Please choose a number between 1 and 3.");
             }
         }
     }
 
     // Print the Main Application Menu options
     private static void printMainApplicationMenu() {
-        System.out.println("\n===== Hotel Reservation System =====");
-        System.out.println("1. Admin");
-        System.out.println("2. Customer");
+        System.out.println("\n-- Welcome to Hotel Reservation App --");
+        System.out.println("1. Admin Menu");
+        System.out.println("2. Main Menu");
         System.out.println("3. Exit Application");
         System.out.print("Please select an option: ");
     }

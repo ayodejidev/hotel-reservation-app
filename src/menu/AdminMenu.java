@@ -23,30 +23,22 @@ public class AdminMenu {
             String choice = scanner.nextLine();
 
             switch (choice) {
-                case "1":
-                    displayAllCustomers();
-                    break;
-                case "2":
-                    displayAllRooms();
-                    break;
-                case "3":
-                    displayAllReservations();
-                    break;
-                case "4":
-                    addRoom();
-                    break;
-                case "5":
-                    keepRunning = false; // Go back to Main Menu
-                    break;
-                default:
-                    System.out.println("Invalid input. Please choose a number between 1 and 5.");
+                case "1" -> displayAllCustomers();
+                case "2" -> displayAllRooms();
+                case "3" -> displayAllReservations();
+                case "4" -> addRoom();
+                case "5" -> {
+                    MainMenu.runMainMenu(); // Go back to Main Menu
+                    keepRunning = false;
+                }
+                default -> System.out.println("Invalid input. Please choose a number between 1 and 5.");
             }
         }
     }
 
     // Print the Admin Menu options
     private static void printAdminMenu() {
-        System.out.println("\n===== Admin Menu =====");
+        System.out.println("\n--- Admin Menu ---");
         System.out.println("1. See all Customers");
         System.out.println("2. See all Rooms");
         System.out.println("3. See all Reservations");
@@ -92,12 +84,15 @@ public class AdminMenu {
         System.out.print("Enter room number: ");
         String roomNumber = scanner.nextLine();
 
-        System.out.print("Enter room price: ");
-        double roomPrice = Double.parseDouble(scanner.nextLine());
+        double roomPrice = promptForDouble();
+        if (roomPrice < 0) {
+            System.out.println("Room price cannot be negative.");
+            return;
+        }
 
         System.out.print("Enter room type (1 for SINGLE, 2 for DOUBLE): ");
         String roomTypeInput = scanner.nextLine();
-        RoomType roomType = null;
+        RoomType roomType;
 
         if (roomTypeInput.equals("1")) {
             roomType = RoomType.SINGLE;
@@ -115,5 +110,17 @@ public class AdminMenu {
         adminResource.addRoom(roomsToAdd);
 
         System.out.println("Room added successfully.");
+    }
+
+    // Room price
+    private static double promptForDouble() {
+        while (true) {
+            System.out.print("Enter room price per night: ");
+            try {
+                return Double.parseDouble(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid amount.");
+            }
+        }
     }
 }

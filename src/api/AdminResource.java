@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class AdminResource {
-    // Static reference for Singleton pattern
+
     private static AdminResource adminResource = null;
 
     // Get instances of CustomerService and ReservationService

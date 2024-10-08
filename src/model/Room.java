@@ -1,9 +1,9 @@
 package model;
 
 public class Room implements IRoom {
-    private String roomNumber;  // Room number as a String
-    private Double price;       // Room price as a Double
-    private RoomType roomType;  // Room type (SINGLE, DOUBLE) as an enum
+    private final String roomNumber;  // Room number as a String
+    private final Double price;       // Room price as a Double
+    private final RoomType roomType;  // Room type (SINGLE, DOUBLE) as an enum
 
     // Constructor to initialize the Room object
     public Room(String roomNumber, RoomType roomType, Double price) {
@@ -39,6 +39,6 @@ public class Room implements IRoom {
     public String toString() {
         return "Room Number: " + roomNumber +
                 ", Room Type: " + roomType +
-                ", Price: " + (price > 0 ? "$" + price : "Free");
+                ", Price: " + (price > 0 ? "€" + price : "Free");
     }
 }

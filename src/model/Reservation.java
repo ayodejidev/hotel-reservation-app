@@ -4,10 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Reservation {
-    private Customer customer;
-    private IRoom room;
-    private Date checkInDate;
-    private Date checkOutDate;
+    private final Customer customer;
+    private final IRoom room;
+    private final Date checkInDate;
+    private final Date checkOutDate;
 
 
     public Reservation(Customer customer, IRoom room, Date checkInDate, Date checkOutDate) {
@@ -35,9 +35,9 @@ public class Reservation {
 
     public String toString() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");  // Format dates to be more readable
-        return "Reservation: " +
-                "\nCustomer: " + customer +
-                "\nRoom: " + room +
+        return "Reservation Details: " +
+                "\nCustomer name: " + customer +
+                "\nRoom Details: " + room +
                 "\nCheck-in Date: " + dateFormat.format(checkInDate) +
                 "\nCheck-out Date: " + dateFormat.format(checkOutDate);
     }
