@@ -1,29 +1,55 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+# Ignore class files
+*.class
 
-### Eclipse ###
-.apt_generated
+# Ignore package files
+*.jar
+*.war
+*.ear
+
+# Ignore log files
+*.log
+
+# Ignore compiled files
+/bin/
+build/
+
+# Ignore IntelliJ IDEA files
+/.idea/
+/*.iml
+/out/
+
+# Ignore Eclipse files
+/.settings/
+/.project
 .classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
+# Ignore macOS system files
 .DS_Store
+
+# Ignore Windows system files
+Thumbs.db
+ehthumbs.db
+
+# Ignore Maven and Gradle build files
+target/
+*.pom
+*.properties
+*.gradle
+.gradle/
+/build/
+
+# Ignore temporary files
+*.tmp
+*.swp
+
+# Ignore coverage reports
+/coverage/
+/jacoco/
+
+# Ignore test result files
+/test-output/
+/surefire-reports/
+/test-reports/
+
+# Ignore generated metadata files
+*.orig
