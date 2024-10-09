@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.Collection;
+import java.util.Calendar;
 
 public class MainMenu {
 
@@ -35,7 +36,6 @@ public class MainMenu {
                     keepRunning = false;
                     HotelApplication.runApplication(); // Exits Main Menu and returns to Hotel Application Menu
                 }
-
                 default -> System.out.println("Invalid input. Please choose a number between 1 and 5.");
             }
         }
@@ -58,8 +58,15 @@ public class MainMenu {
             Date checkInDate = promptForDate("Enter check-in date (dd/MM/yyyy): ");
             Date checkOutDate = promptForDate("Enter check-out date (dd/MM/yyyy): ");
 
+            // Restrict booking on past dates
+            Date currentDate = new Date();
+            if (checkInDate.before(currentDate) || checkOutDate.before(currentDate)) {
+                System.out.println("Reservation dates must be in the future. Please enter a valid date range.");
+                return;
+            }
+
             if (!checkOutDate.after(checkInDate)) {
-                System.out.println("Check-out date must be after check-in date.");
+                System.out.println("Check-out date must be after the check-in date.");
                 return;
             }
 
@@ -83,43 +90,77 @@ public class MainMenu {
             if (availableRooms.isEmpty()) {
                 // If no rooms are available, search for recommended rooms
                 System.out.println("No available rooms for the selected dates. Searching for recommended rooms...");
-                availableRooms = hotelResource.findRecommendedRooms(checkInDate, checkOutDate);
 
-                if (availableRooms.isEmpty()) {
-                    System.out.println("No recommended rooms available either. Please check back later");
+                Collection<IRoom> recommendedRooms = hotelResource.findRecommendedRooms(checkInDate, checkOutDate);
+                if (recommendedRooms.isEmpty()) {
+                    System.out.println("No recommended rooms available for alternative dates.");
                     return;
                 }
 
-                System.out.println("Recommended Rooms (available 7 days from your desired checkout date):");
+                // Calculate alternative dates
+                Date newCheckInDate = addDaysToDate(checkInDate, 7);
+                Date newCheckOutDate = addDaysToDate(checkOutDate, 7);
+
+                System.out.println("Recommended Rooms (available from " + dateFormat.format(newCheckInDate) +
+                        " to " + dateFormat.format(newCheckOutDate) + "):");
+                for (IRoom room : recommendedRooms) {
+                    System.out.println(room);
+                }
+
+                System.out.print("Enter room number to reserve for the alternative dates: ");
+                String roomNumber = scanner.nextLine();
+                IRoom room = hotelResource.getRoom(roomNumber);
+
+                if (room == null) {
+                    System.out.println("Room not found.");
+                    return;
+                }
+
+                System.out.print("Enter your email (example: name@domain.com): ");
+                String customerEmail = scanner.nextLine();
+
+                Reservation reservation = hotelResource.bookARoom(customerEmail, room, newCheckInDate, newCheckOutDate);
+                if (reservation != null) {
+                    System.out.println("Reservation successful for the alternative dates: " + reservation);
+                } else {
+                    System.out.println("Unable to make a reservation. Please check your email or create an account.");
+                }
             } else {
                 System.out.println("Available Rooms:");
-            }
+                for (IRoom room : availableRooms) {
+                    System.out.println(room);
+                }
 
-            for (IRoom room : availableRooms) {
-                System.out.println(room);
-            }
+                System.out.print("Enter room number to reserve: ");
+                String roomNumber = scanner.nextLine();
+                IRoom room = hotelResource.getRoom(roomNumber);
 
-            System.out.print("Enter room number to reserve: ");
-            String roomNumber = scanner.nextLine();
-            IRoom room = hotelResource.getRoom(roomNumber);
+                if (room == null) {
+                    System.out.println("Room not found.");
+                    return;
+                }
 
-            if (room == null) {
-                System.out.println("Room not found.");
-                return;
-            }
+                System.out.print("Enter your email (example: name@domain.com): ");
+                String customerEmail = scanner.nextLine();
 
-            System.out.print("Enter your email (example: name@domain.com): ");
-            String customerEmail = scanner.nextLine();
-
-            Reservation reservation = hotelResource.bookARoom(customerEmail, room, checkInDate, checkOutDate);
-            if (reservation != null) {
-                System.out.println("Reservation successful: " + reservation);
-            } else {
-                System.out.println("Unable to make a reservation. Please check your email or create an account or try to book available room(s).");
+                Reservation reservation = hotelResource.bookARoom(customerEmail, room, checkInDate, checkOutDate);
+                if (reservation != null) {
+                    System.out.println("Reservation successful: " + reservation);
+                } else {
+                    System.out.println("Unable to make a reservation. Please check your email or create an account.");
+                }
             }
         } catch (ParseException e) {
             System.out.println("Error: Invalid date format. Please enter the date in 'dd/MM/yyyy' format.");
         }
+    }
+
+    // Helper method to add days to a date
+    private static Date addDaysToDate(Date date, int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, days);
+        return calendar.getTime();
     }
 
     // Prompt the user for a valid date

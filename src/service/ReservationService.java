@@ -5,17 +5,20 @@ import model.IRoom;
 import model.Reservation;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class ReservationService {
     private static ReservationService reservationService = null;
 
-    // Data stores for rooms and reservations
+    // Thread-safe data stores for rooms and reservations
     private final Map<String, IRoom> roomMap;
     private final List<Reservation> reservations;
 
     private ReservationService() {
-        this.roomMap = new HashMap<>();
-        this.reservations = new ArrayList<>();
+        this.roomMap = new ConcurrentHashMap<>();
+        this.reservations = new CopyOnWriteArrayList<>();
     }
 
     public static ReservationService getInstance() {
@@ -27,6 +30,10 @@ public class ReservationService {
 
     // Method to add a room to the roomMap
     public void addRoom(IRoom room) {
+        if (room == null || roomMap.containsKey(room.getRoomNumber())) {
+            System.out.println("Invalid room or room already exists.");
+            return;
+        }
         roomMap.put(room.getRoomNumber(), room);
     }
 
@@ -37,13 +44,15 @@ public class ReservationService {
 
     // Method to reserve a room
     public Reservation reserveARoom(Customer customer, IRoom room, Date checkInDate, Date checkOutDate) {
-        // Check for conflicting reservations
-        for (Reservation reservation : reservations) {
-            if (reservation.getRoom().equals(room) &&
-                    datesOverlap(checkInDate, checkOutDate, reservation.getCheckInDate(), reservation.getCheckOutDate())) {
-                System.out.println("Room is already reserved during the requested date range.");
-                return null;
-            }
+        if (customer == null || room == null || checkInDate == null || checkOutDate == null) {
+            System.out.println("Invalid reservation details.");
+            return null;
+        }
+
+        // Check if the room is available for the given date range
+        if (!isRoomAvailable(room, checkInDate, checkOutDate)) {
+            System.out.println("Room is already reserved during the requested date range.");
+            return null;
         }
 
         Reservation newReservation = new Reservation(customer, room, checkInDate, checkOutDate);
@@ -51,18 +60,18 @@ public class ReservationService {
         return newReservation;
     }
 
+    // Check if a room is available for the given date range
+    private boolean isRoomAvailable(IRoom room, Date checkInDate, Date checkOutDate) {
+        return reservations.stream()
+                .filter(reservation -> reservation.getRoom().equals(room))
+                .noneMatch(reservation -> datesOverlap(checkInDate, checkOutDate, reservation.getCheckInDate(), reservation.getCheckOutDate()));
+    }
+
     // Method to find available rooms between check-in and check-out dates
     public Collection<IRoom> findRooms(Date checkInDate, Date checkOutDate) {
-        List<IRoom> availableRooms = new ArrayList<>(roomMap.values());
-
-        // Filter out rooms that are already reserved for the given date range
-        for (Reservation reservation : reservations) {
-            if (datesOverlap(checkInDate, checkOutDate, reservation.getCheckInDate(), reservation.getCheckOutDate())) {
-                availableRooms.remove(reservation.getRoom());
-            }
-        }
-
-        return availableRooms;
+        return roomMap.values().stream()
+                .filter(room -> isRoomAvailable(room, checkInDate, checkOutDate))
+                .collect(Collectors.toList());
     }
 
     // Method to find recommended rooms with a 7-day shift in check-in and check-out dates
@@ -89,30 +98,32 @@ public class ReservationService {
 
     // Method to get all reservations of a customer
     public Collection<Reservation> getCustomersReservation(Customer customer) {
-        List<Reservation> customerReservations = new ArrayList<>();
-        for (Reservation reservation : reservations) {
-            if (reservation.getCustomer().equals(customer)) {
-                customerReservations.add(reservation);
-            }
+        if (customer == null) {
+            return Collections.emptyList();
         }
-        return customerReservations;
+
+        return reservations.stream()
+                .filter(reservation -> reservation.getCustomer().equals(customer))
+                .collect(Collectors.toList());
     }
 
-    // Method to print all reservations
-    public void printAllReservation() {
-        if (reservations.isEmpty()) {
-            System.out.println("No reservations found.");
-        } else {
-            for (Reservation reservation : reservations) {
-                System.out.println(reservation);
-            }
+    // Method to cancel a reservation (to used in future iterations)
+    public boolean cancelReservation(Reservation reservation) {
+        if (reservation == null) {
+            System.out.println("Invalid reservation.");
+            return false;
         }
+
+        return reservations.remove(reservation);
+    }
+
+    // Method to get all reservations
+    public Collection<Reservation> getAllReservations() {
+        return new ArrayList<>(reservations);
     }
 
     // Method to get all rooms
-    // In ReservationService class
     public Collection<IRoom> getAllRooms() {
         return roomMap.values();
     }
-
 }

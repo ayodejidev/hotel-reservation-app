@@ -51,6 +51,6 @@ public class AdminResource {
 
     // Method to display all reservations
     public void displayAllReservations() {
-        reservationService.printAllReservation();
+        reservationService.getAllReservations();
     }
 }
