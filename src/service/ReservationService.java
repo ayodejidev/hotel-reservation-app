@@ -7,22 +7,17 @@ import model.Reservation;
 import java.util.*;
 
 public class ReservationService {
-    // Static reference for Singleton pattern
     private static ReservationService reservationService = null;
 
-    // Map to store rooms, using room ID as the key
-    private Map<String, IRoom> roomMap;
+    // Data stores for rooms and reservations
+    private final Map<String, IRoom> roomMap;
+    private final List<Reservation> reservations;
 
-    // List to store reservations
-    private List<Reservation> reservations;
-
-    // Private constructor for Singleton pattern
     private ReservationService() {
         this.roomMap = new HashMap<>();
         this.reservations = new ArrayList<>();
     }
 
-    // Static method to get the single instance of ReservationService
     public static ReservationService getInstance() {
         if (reservationService == null) {
             reservationService = new ReservationService();
@@ -42,6 +37,15 @@ public class ReservationService {
 
     // Method to reserve a room
     public Reservation reserveARoom(Customer customer, IRoom room, Date checkInDate, Date checkOutDate) {
+        // Check for conflicting reservations
+        for (Reservation reservation : reservations) {
+            if (reservation.getRoom().equals(room) &&
+                    datesOverlap(checkInDate, checkOutDate, reservation.getCheckInDate(), reservation.getCheckOutDate())) {
+                System.out.println("Room is already reserved during the requested date range.");
+                return null;
+            }
+        }
+
         Reservation newReservation = new Reservation(customer, room, checkInDate, checkOutDate);
         reservations.add(newReservation);
         return newReservation;
@@ -53,12 +57,34 @@ public class ReservationService {
 
         // Filter out rooms that are already reserved for the given date range
         for (Reservation reservation : reservations) {
-            if (reservation.getCheckInDate().before(checkOutDate) && reservation.getCheckOutDate().after(checkInDate)) {
+            if (datesOverlap(checkInDate, checkOutDate, reservation.getCheckInDate(), reservation.getCheckOutDate())) {
                 availableRooms.remove(reservation.getRoom());
             }
         }
 
         return availableRooms;
+    }
+
+    // Method to find recommended rooms with a 7-day shift in check-in and check-out dates
+    public Collection<IRoom> findRecommendedRooms(Date checkInDate, Date checkOutDate) {
+        Calendar calendar = Calendar.getInstance();
+
+        // Shift dates by 7 days for new search
+        calendar.setTime(checkInDate);
+        calendar.add(Calendar.DAY_OF_MONTH, 7);
+        Date newCheckInDate = calendar.getTime();
+
+        calendar.setTime(checkOutDate);
+        calendar.add(Calendar.DAY_OF_MONTH, 7);
+        Date newCheckOutDate = calendar.getTime();
+
+        // Search for available rooms with the shifted date range
+        return findRooms(newCheckInDate, newCheckOutDate);
+    }
+
+    // Helper method to check if two date ranges overlap
+    private boolean datesOverlap(Date checkIn1, Date checkOut1, Date checkIn2, Date checkOut2) {
+        return checkIn1.before(checkOut2) && checkOut1.after(checkIn2);
     }
 
     // Method to get all reservations of a customer

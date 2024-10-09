@@ -22,7 +22,7 @@ public class HotelApplication {
 
             switch (choice) {
                 case "1" -> AdminMenu.runAdminMenu();  // Admin option selected
-                case "2" -> MainMenu.runMainMenu();  // Customer option selected
+                case "2" -> MainMenu.runMainMenu();  // Main Menu option selected
                 case "3" -> {
                     keepRunning = false;
                     System.out.println("Exiting application. See you next time!");

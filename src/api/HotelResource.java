@@ -69,4 +69,9 @@ public class HotelResource {
     public Collection<IRoom> findARoom(Date checkInDate, Date checkOutDate) {
         return reservationService.findRooms(checkInDate, checkOutDate);
     }
+
+    // Method to find recommended rooms with a 7-day shift if no rooms are available
+    public Collection<IRoom> findRecommendedRooms(Date checkInDate, Date checkOutDate) {
+        return reservationService.findRecommendedRooms(checkInDate, checkOutDate);
+    }
 }

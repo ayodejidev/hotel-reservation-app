@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import java.util.Collection;
 
 public class MainMenu {
 
@@ -67,7 +68,8 @@ public class MainMenu {
             String roomTypeChoice = scanner.nextLine();
 
             // Find available rooms
-            var availableRooms = hotelResource.findARoom(checkInDate, checkOutDate);
+            Collection<IRoom> availableRooms = hotelResource.findARoom(checkInDate, checkOutDate);
+
             // Filter rooms based on user input (paid rooms or free rooms)
             if (roomTypeChoice.equals("1")) {
                 availableRooms = availableRooms.stream().filter(room -> room.getRoomPrice() > 0.0).collect(Collectors.toList());
@@ -79,32 +81,41 @@ public class MainMenu {
             }
 
             if (availableRooms.isEmpty()) {
-                System.out.println("No available rooms for the selected dates.");
-            } else {
-                System.out.println("Available Rooms:");
-                for (IRoom room : availableRooms) {
-                    System.out.println(room);
-                }
+                // If no rooms are available, search for recommended rooms
+                System.out.println("No available rooms for the selected dates. Searching for recommended rooms...");
+                availableRooms = hotelResource.findRecommendedRooms(checkInDate, checkOutDate);
 
-                System.out.print("Enter room number to reserve: ");
-                String roomNumber = scanner.nextLine();
-                IRoom room = hotelResource.getRoom(roomNumber);
-
-                if (room == null) {
-                    System.out.println("Room not found.");
+                if (availableRooms.isEmpty()) {
+                    System.out.println("No recommended rooms available either.");
                     return;
                 }
 
-                System.out.print("Enter your email (example: name@domain.com): ");
-                String customerEmail = scanner.nextLine();
+                System.out.println("Recommended Rooms (with a 7-day shift):");
+            } else {
+                System.out.println("Available Rooms:");
+            }
 
-                // Make the reservation
-                Reservation reservation = hotelResource.bookARoom(customerEmail, room, checkInDate, checkOutDate);
-                if (reservation != null) {
-                    System.out.println("Reservation successful: " + reservation);
-                } else {
-                    System.out.println("Unable to make a reservation. Please check your email or create an account.");
-                }
+            for (IRoom room : availableRooms) {
+                System.out.println(room);
+            }
+
+            System.out.print("Enter room number to reserve: ");
+            String roomNumber = scanner.nextLine();
+            IRoom room = hotelResource.getRoom(roomNumber);
+
+            if (room == null) {
+                System.out.println("Room not found.");
+                return;
+            }
+
+            System.out.print("Enter your email (example: name@domain.com): ");
+            String customerEmail = scanner.nextLine();
+
+            Reservation reservation = hotelResource.bookARoom(customerEmail, room, checkInDate, checkOutDate);
+            if (reservation != null) {
+                System.out.println("Reservation successful: " + reservation);
+            } else {
+                System.out.println("Unable to make a reservation. Please check your email or create an account or try to book available room(s).");
             }
         } catch (ParseException e) {
             System.out.println("Error: Invalid date format. Please enter the date in 'dd/MM/yyyy' format.");
