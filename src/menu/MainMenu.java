@@ -86,11 +86,11 @@ public class MainMenu {
                 availableRooms = hotelResource.findRecommendedRooms(checkInDate, checkOutDate);
 
                 if (availableRooms.isEmpty()) {
-                    System.out.println("No recommended rooms available either.");
+                    System.out.println("No recommended rooms available either. Please check back later");
                     return;
                 }
 
-                System.out.println("Recommended Rooms (with a 7-day shift):");
+                System.out.println("Recommended Rooms (available 7 days from your desired checkout date):");
             } else {
                 System.out.println("Available Rooms:");
             }
